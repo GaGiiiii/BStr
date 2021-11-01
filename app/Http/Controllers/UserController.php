@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Interest;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Ramsey\Uuid\Type\Integer;
+use Validator;
 
 class UserController extends Controller {
 
@@ -32,6 +39,8 @@ class UserController extends Controller {
 
     $token = $user->createToken('usertoken');
 
+    $user = $user->fresh(['comments', 'comments.post', 'likes', 'likes.post', 'interests', 'interests.category']);
+
     return response([
       "user" => $user,
       "message" => "Login successful",
@@ -56,7 +65,8 @@ class UserController extends Controller {
       'last_name' => 'required|alpha|min:2',
       'email' => 'required|string|email|unique:users,email',
       'password' => 'required|string|min:4|confirmed',
-      'image' => 'file|image|max:5000',
+      'image' => 'required|file|image|max:5000',
+      'interests' => 'required|min:5|string', // Min 5 chars because req will be like this 1,7,5. Those are categories Ids
     ]);
 
     if ($validator->fails()) {
@@ -66,6 +76,8 @@ class UserController extends Controller {
         'errors' => $validator->messages(),
       ], 400);
     }
+
+    DB::beginTransaction();
 
     $user = new User;
 
@@ -84,6 +96,34 @@ class UserController extends Controller {
 
     $user->save();
     $token = $user->createToken('usertoken');
+
+    // Adding Users Interests
+    $interestsArr = explode(",", $request->interests);
+
+    if (!$this->validInterests($interestsArr)) {
+      DB::rollBack();
+
+      return response([
+        'user' => null,
+        'message' => 'Invalid interests.',
+      ], 400);
+    }
+
+    foreach ($interestsArr as $category_id) {
+      $interest = new Interest;
+
+      $interest->user_id = $user->id;
+      $interest->category_id = $category_id;
+
+      Interest::firstOrCreate([
+        'user_id' => $interest->user_id,
+        'category_id' => $interest->category_id,
+      ]);
+    }
+
+    DB::commit();
+
+    $user = $user->fresh(['comments', 'comments.post', 'likes', 'likes.post', 'interests', 'interests.category']);
 
     return response([
       "user" => $user,
@@ -104,5 +144,15 @@ class UserController extends Controller {
       "user" => null,
       "message" => "Not logged in.",
     ], 401);
+  }
+
+  private function validInterests(array $interests) {
+    foreach ($interests as $category_id) {
+      if (!Category::find($category_id)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

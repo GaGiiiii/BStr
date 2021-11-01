@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Interest;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -59,77 +60,84 @@ class UserController extends Controller {
   }
 
   public function register(Request $request) {
-    // VALIDATE DATA
-    $validator = Validator::make($request->all(), [
-      'first_name' => 'required|alpha|min:2',
-      'last_name' => 'required|alpha|min:2',
-      'email' => 'required|string|email|unique:users,email',
-      'password' => 'required|string|min:4|confirmed',
-      'image' => 'required|file|image|max:5000',
-      'interests' => 'required|min:5|string', // Min 5 chars because req will be like this 1,7,5. Those are categories Ids
-    ]);
-
-    if ($validator->fails()) {
-      return response([
-        'user' => null,
-        'message' => 'Validation failed.',
-        'errors' => $validator->messages(),
-      ], 400);
-    }
-
-    DB::beginTransaction();
-
-    $user = new User;
-
-    $user->first_name = $request->first_name;
-    $user->last_name = $request->last_name;
-    $user->email = $request->email;
-    $user->password = Hash::make($request->password);
-
-    // CHECK IF IMAGE IS UPLOADED
-    if (isset($request->image)) {
-      // CREATE UNIQUE FILENAME AND STORE IT UNIQUE FOLDER
-      $fileName = $user->first_name . "_" . $user->last_name . "_" . date('dmY_Hs') . "." . $request->image->extension() ?? null;
-      $path = $request->file('image')->storeAs('avatars/' . $user->username, $fileName);
-      $user->image = $fileName;
-    }
-
-    $user->save();
-    $token = $user->createToken('usertoken');
-
-    // Adding Users Interests
-    $interestsArr = explode(",", $request->interests);
-
-    if (!$this->validInterests($interestsArr)) {
-      DB::rollBack();
-
-      return response([
-        'user' => null,
-        'message' => 'Invalid interests.',
-      ], 400);
-    }
-
-    foreach ($interestsArr as $category_id) {
-      $interest = new Interest;
-
-      $interest->user_id = $user->id;
-      $interest->category_id = $category_id;
-
-      Interest::firstOrCreate([
-        'user_id' => $interest->user_id,
-        'category_id' => $interest->category_id,
+    try {
+      // VALIDATE DATA
+      $validator = Validator::make($request->all(), [
+        'first_name' => 'required|alpha|min:2',
+        'last_name' => 'required|alpha|min:2',
+        'email' => 'required|string|email|unique:users,email',
+        'password' => 'required|string|min:4|confirmed',
+        'image' => 'required|file|image|max:5000',
+        'interests' => 'required|min:5|string', // Min 5 chars because req will be like this 1,7,5. Those are categories Ids
       ]);
+
+      if ($validator->fails()) {
+        return response([
+          'user' => null,
+          'message' => 'Validation failed.',
+          'errors' => $validator->messages(),
+        ], 400);
+      }
+
+      DB::beginTransaction();
+
+      $user = new User;
+
+      $user->first_name = $request->first_name;
+      $user->last_name = $request->last_name;
+      $user->email = $request->email;
+      $user->password = Hash::make($request->password);
+
+      // CHECK IF IMAGE IS UPLOADED
+      if (isset($request->image)) {
+        // CREATE UNIQUE FILENAME AND STORE IT UNIQUE FOLDER
+        $fileName = $user->first_name . "_" . $user->last_name . "_" . date('dmY_Hs') . "." . $request->image->extension() ?? null;
+        $path = $request->file('image')->storeAs('avatars/' . $user->username, $fileName);
+        $user->image = $fileName;
+      }
+
+      $user->save();
+      $token = $user->createToken('usertoken');
+
+      // Adding Users Interests
+      $interestsArr = explode(",", $request->interests);
+
+      if (!$this->validInterests($interestsArr)) {
+        DB::rollBack();
+
+        return response([
+          'user' => null,
+          'message' => 'Invalid interests.',
+        ], 400);
+      }
+
+      foreach ($interestsArr as $category_id) {
+        $interest = new Interest;
+
+        $interest->user_id = $user->id;
+        $interest->category_id = $category_id;
+
+        Interest::firstOrCreate([
+          'user_id' => $interest->user_id,
+          'category_id' => $interest->category_id,
+        ]);
+      }
+
+      DB::commit();
+
+      $user = $user->fresh(['comments', 'comments.post', 'likes', 'likes.post', 'interests', 'interests.category']);
+
+      return response([
+        "user" => $user,
+        "message" => "User created.",
+        'token' => $token->plainTextToken,
+      ], 201);
+    } catch (Exception $e) {
+      return response([
+        "user" => null,
+        "message" => $e->getMessage(),
+      ], 500);
     }
-
-    DB::commit();
-
-    $user = $user->fresh(['comments', 'comments.post', 'likes', 'likes.post', 'interests', 'interests.category']);
-
-    return response([
-      "user" => $user,
-      "message" => "User created.",
-      'token' => $token->plainTextToken,
-    ], 201);
   }
 
   public function loggedIn() {

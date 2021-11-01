@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
@@ -22,6 +23,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
 Route::get('/loggedIn', [UserController::class, 'loggedIn']);
+
+// Most Popular Products For Category
+Route::get('/categories/{category}/most-popular-posts', [CategoryController::class, 'mostPopularPosts']);
+
 
 // PROTECTED ======================================================================================
 Route::group(['middleware' => 'auth:sanctum'], function () {

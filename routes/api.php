@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\LikeController;
@@ -28,6 +27,11 @@ Route::get('/loggedIn', [UserController::class, 'loggedIn']);
 // Most Popular Products For Category
 Route::get('/categories/{category}/most-popular-posts', [HelpController::class, 'mostPopularPosts']);
 
+// User Points
+Route::get('/users/{user}/points', [HelpController::class, 'usersPoints']);
+
+// Posts
+Route::get('/posts', [PostController::class, 'index']);
 
 // PROTECTED ======================================================================================
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -45,5 +49,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
   Route::post('/comments', [CommentController::class, 'store']);
   Route::put('/comments/{comment}', [CommentController::class, 'update']);
   Route::delete('/comments/{comment}', [CommentController::class, 'destroy']);
+
+  // Posts
+  Route::post('/posts', [PostController::class, 'store']);
+  Route::put('/posts/{post}', [PostController::class, 'update']);
+  Route::delete('/posts/{post}', [PostController::class, 'destroy']);
 });
 // PROTECTED =======================================================================================

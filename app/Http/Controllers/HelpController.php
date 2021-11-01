@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 class HelpController extends Controller {
   /**
@@ -33,6 +31,30 @@ class HelpController extends Controller {
 
     return response([
       "posts" => $posts,
+      "message" => "Posts found",
+    ], 200);
+  }
+
+  public function usersPoints($id) {
+    $user = User::find($id);
+
+    if (!$user) {
+      return response([
+        'user' => null,
+        'message' => 'User not found.',
+      ], 404);
+    }
+
+    $points = 0;
+
+    $posts = Post::where('user_id', $id)->with(['likes'])->get();
+
+    foreach ($posts as $post) {
+      $points += sizeof($post->likes);
+    }
+
+    return response([
+      "points" => $points,
       "message" => "Posts found",
     ], 200);
   }

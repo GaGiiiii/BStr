@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
@@ -25,7 +26,7 @@ Route::post('/register', [UserController::class, 'register']);
 Route::get('/loggedIn', [UserController::class, 'loggedIn']);
 
 // Most Popular Products For Category
-Route::get('/categories/{category}/most-popular-posts', [CategoryController::class, 'mostPopularPosts']);
+Route::get('/categories/{category}/most-popular-posts', [HelpController::class, 'mostPopularPosts']);
 
 
 // PROTECTED ======================================================================================

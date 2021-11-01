@@ -15,6 +15,7 @@ class CreateLikesTable extends Migration {
       $table->id();
       $table->bigInteger('post_id');
       $table->bigInteger('user_id');
+      $table->unique(['post_id', 'user_id']);
       $table->timestamps();
     });
   }

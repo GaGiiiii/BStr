@@ -15,6 +15,7 @@ class CreateInterestsTable extends Migration {
       $table->id();
       $table->bigInteger('user_id');
       $table->bigInteger('category_id');
+      $table->unique(['user_id', 'category_id']);
       $table->timestamps();
     });
   }

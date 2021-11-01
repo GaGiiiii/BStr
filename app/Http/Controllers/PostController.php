@@ -10,6 +10,65 @@ use Validator;
 
 class PostController extends Controller {
   /**
+   * Display a listing of the resource.
+   *
+   * @return \Illuminate\Http\Response
+   */
+  public function index(Request $request) {
+    $sortBy = $request->query('sortBy');
+    $categories = $request->query('categories'); // Eg. categories=1,3,5,6
+    $search = $request->query('search');
+
+    switch ($sortBy) {
+      case 'dateDesc':
+        $posts = Post::with(['likes', 'comments', 'category', 'user'])
+          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
+          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
+          ->orderBy('created_at', 'desc')->get();
+        break;
+      case 'dateAsc':
+        $posts = Post::with(['likes', 'comments', 'category', 'user'])
+          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
+          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
+          ->orderBy('created_at', 'asc')->get();
+        break;
+      case 'popularity':
+        $posts = Post::with(['likes', 'comments', 'category', 'user'])
+          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
+          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
+          ->get()->toArray();
+        usort($posts, function ($a, $b) {
+          return (sizeof($b['comments']) + sizeof($b['likes'])) -  (sizeof($a['comments']) + sizeof($a['likes']));
+        });
+        break;
+      default:
+        $posts = Post::with(['likes', 'comments', 'category', 'user'])
+          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
+          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
+          ->orderBy('id', 'desc')->get();
+    }
+
+    $categoriesArr = array_filter(explode(",", $categories));
+
+    if (!is_array($posts)) {
+      $posts = $posts->toArray();
+    }
+
+    if (sizeof($categoriesArr) !== 0) {
+      $posts = array_filter($posts, function ($post) use ($categoriesArr) {
+        return in_array($post['category_id'], $categoriesArr);
+      });
+      $posts = array_values($posts); // Fix Array
+    }
+
+    return response([
+      "num_of_posts" => sizeof($posts),
+      "posts" => $posts,
+      "message" => "Posts found",
+    ], 200);
+  }
+
+  /**
    * Store a newly created resource in storage.
    *
    * @param  \Illuminate\Http\Request  $request

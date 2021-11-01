@@ -19,33 +19,25 @@ class PostController extends Controller {
     $categories = $request->query('categories'); // Eg. categories=1,3,5,6
     $search = $request->query('search');
 
+    $posts = Post::with(['likes', 'comments', 'category', 'user'])
+      ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
+      ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%");
+
     switch ($sortBy) {
       case 'dateDesc':
-        $posts = Post::with(['likes', 'comments', 'category', 'user'])
-          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
-          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
-          ->orderBy('created_at', 'desc')->get();
+        $posts = $posts->orderBy('created_at', 'desc')->get();
         break;
       case 'dateAsc':
-        $posts = Post::with(['likes', 'comments', 'category', 'user'])
-          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
-          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
-          ->orderBy('created_at', 'asc')->get();
+        $posts = $posts->orderBy('created_at', 'asc')->get();
         break;
       case 'popularity':
-        $posts = Post::with(['likes', 'comments', 'category', 'user'])
-          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
-          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
-          ->get()->toArray();
+        $posts = $posts->get()->toArray();
         usort($posts, function ($a, $b) {
           return (sizeof($b['comments']) + sizeof($b['likes'])) -  (sizeof($a['comments']) + sizeof($a['likes']));
         });
         break;
       default:
-        $posts = Post::with(['likes', 'comments', 'category', 'user'])
-          ->whereRelation('user', 'first_name', 'LIKE', "%$search%")
-          ->orWhereRelation('user', 'last_name', 'LIKE', "%$search%")
-          ->orderBy('id', 'desc')->get();
+        $posts = $posts->orderBy('id', 'desc')->get();
     }
 
     $categoriesArr = array_filter(explode(",", $categories));

@@ -1,47 +1,131 @@
 # BStorm  
 
-Uputstvo za instalaciju i pokretanje aplikacije
+User manual for installing and starting the application
 
-## Instalacija projekta
+## Installing project
 
-### Preduslovi:
+### Prerequisites:
 
-- Instaliran [GIT CLI](https://git-scm.com/)
-- Instaliran [Composer](https://getcomposer.org/download/)  
-- Instaliran [Docker](https://www.docker.com/products/docker-desktop)
+- Installed [GIT CLI](https://git-scm.com/)
+- Installed [Composer](https://getcomposer.org/download/)  
+- Installed [Docker](https://www.docker.com/products/docker-desktop)
 
 ---
 
-Kloniramo repo komandom
+We are going to clone repo with command
 
 ```bash
 git clone https://github.com/GaGiiiii/BStr/
 ```
 
-Otvaramo terminal, zatim kucamo:
+We then open terminal, and then type:
 
 ```bash
 cd BStr
 composer i
 ```
 
-komandama iznad smo instalirali sve dependecy-e koji se nalaze u composer.json fajlu
+with the commands above we have installed all the dependencies located in the composer.json file
 
 ---
 
-## Pokretanje projekta
+## Starting project
 
-### Pokretanje backend-a
+### Starting backend
 
-Backend pokrecemo iz BStr foldera komandom:
+We are going to start backend from "BStr" directory with command:
 
 ```bash
 docker compose up
 ```
 
-Ova komanda će pokrenuti docker container namenjen za development.    
+This command will start docker container meant for development.    
   
-U njemu je server pokrenut preko komande php artisan serve   
-Osluškuju se promene u kodu, nakon svake promene, aplikacija će se automatski porkenuti ponovo.
+In the container server is started using "php artisan serve" command   
+Application is listening for any changes in code and after every chnage app will restart automatically.
 
-Backend radi na [localhost:8000](http://localhost:8000/)   
+Backend works on [localhost:8000](http://localhost:8000/)   
+
+## Starting Tests
+
+For tests to execute we need to enter next command inside our root directory of out project
+
+```bash
+php artisan test
+```
+
+## Documentation
+
+### Below is the ER Model
+
+![EER](./EER.png)
+
+### Relation Model:  
+
+---  
+User(**id**, first_name, last_name, image, email, email_verified_at, password, remember_token, created_at, updated_at)  
+Category(**id**, name, created_at, updated_at)  
+Post(**id**, *user_id*, *category_id*, title, body, created_at, updated_at)  
+Like(**id**, ***post_id, user_id***, created_at, updated_at)  
+Comment(**id**, ***post_id, user_id***, body, created_at, updated_at)  
+Interest(**id**, ***user_id, category_id***, created_at, updated_at)
+
+---
+
+## API Documentation
+
+#### Get all items
+
+```http
+GET /api/posts
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `sortBy` | `string` | Available options **dateDesc \| dateAsc \| popularity** |
+| `categories` | `string` | In format: **1,3,5** where 1,3,5 are **id's** of categories |
+| `search` | `string` | First name / Last name of user who created post |
+
+#### Get item
+
+```http
+GET /api/items/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id of item to fetch |
+
+## Responses
+
+API returns a JSON response in the following format:
+
+```javascript
+{
+  "message": string,
+  "data": data,
+  "errors?": array (in cases of errors)
+}
+```
+The `message` - attribute contains a message commonly used to indicate errors or, in the case of deleting a resource, success that the resource was properly deleted.
+
+The `data` - attribute contains requested resource/s or processed resource. Eg. if we requsted to get all posts the data attr will look like this `"posts": array of posts`  
+
+The `errors` - attribute is optional and it contains error messages
+
+## Status Codes
+
+API returns the following status codes:
+
+| Status Code | Description |
+| :--- | :--- |
+| 200 | `OK` |
+| 201 | `CREATED` |
+| 400 | `BAD REQUEST` |
+| 404 | `NOT FOUND` |
+| 500 | `INTERNAL SERVER ERROR` |
+
+
+
+
+

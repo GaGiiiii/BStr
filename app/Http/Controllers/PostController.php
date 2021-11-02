@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Post;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Validator;
 
@@ -99,7 +100,8 @@ class PostController extends Controller {
         ], 400);
       }
 
-      return 1;
+
+      DB::beginTransaction();
 
       $post = new Post;
       $post->category_id = $request->category_id;
@@ -108,6 +110,25 @@ class PostController extends Controller {
       $post->user_id = auth()->user()->id;
       $post->save();
 
+      // CHECK IF IMAGE IS UPLOADED
+      if ($request->file('image')) {
+        // CREATE UNIQUE FILENAME AND STORE IT UNIQUE FOLDER
+        $fileName = $post->id . "_" . date('dmY_Hs') . "." . $request->image->extension() ?? null;
+        $path = $request->file('image')->storeAs('posts-images/' . $post->id, $fileName);
+        $post->image = $fileName;
+      }
+
+      // CHECK IF VIDEO IS UPLOADED
+      if ($request->file('video')) {
+        // CREATE UNIQUE FILENAME AND STORE IT UNIQUE FOLDER
+        $fileName = $post->id . "_" . date('dmY_Hs') . "." . $request->video->extension() ?? null;
+        $path = $request->file('video')->storeAs('posts-videos/' . $post->id, $fileName);
+        $post->video = $fileName;
+      }
+
+      $post->save();
+      DB::commit();
+
       $post = $post->fresh(['likes', 'comments', 'category', 'comments.user', 'user']);
 
       return response([
@@ -115,12 +136,14 @@ class PostController extends Controller {
         "message" => "Post created.",
       ], 201);
     } catch (ValidationException $e) {
+      DB::rollBack();
       return response([
         "post" => null,
         'message' => 'Validation failed.',
         "errors" => $e->errors(),
       ], 500);
     } catch (Exception $e) {
+      DB::rollBack();
       return response([
         "post" => null,
         "message" => $e->getMessage(),

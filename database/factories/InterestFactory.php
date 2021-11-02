@@ -17,8 +17,10 @@ class InterestFactory extends Factory {
     $categories = Category::all();
 
     return [
-      'user_id' => $users[rand(0, sizeof($users) - 1)],
-      'category_id' => $categories[rand(0, sizeof($categories) - 1)],
+      'user_id' => User::factory(),
+      'category_id' => Category::factory(),
+      // 'user_id' => $users[rand(0, sizeof($users) - 1)],
+      // 'category_id' => $categories[rand(0, sizeof($categories) - 1)],
     ];
   }
 }

@@ -19,19 +19,29 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Auth
+// Auth ==========================================================================================
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
 Route::get('/loggedIn', [UserController::class, 'loggedIn']);
+// Auth ==========================================================================================
 
-// Most Popular Products For Category
+
+// Most Popular Products For Category ============================================================
 Route::get('/categories/{category}/most-popular-posts', [HelpController::class, 'mostPopularPosts']);
+// Most Popular Products For Category ============================================================
 
-// User Points
+
+// User Points ===================================================================================
 Route::get('/users/{user}/points', [HelpController::class, 'usersPoints']);
+// User Points ===================================================================================
 
-// Posts
+// Posts ==========================================================================================
 Route::get('/posts', [PostController::class, 'index']);
+// Posts ==========================================================================================
+
+// comments ==========================================================================================
+Route::get('/comments', [CommentController::class, 'index']);
+// comments ==========================================================================================
 
 // PROTECTED ======================================================================================
 Route::group(['middleware' => 'auth:sanctum'], function () {

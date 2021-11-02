@@ -17,8 +17,10 @@ class CommentFactory extends Factory {
     $posts = Post::all();
 
     return [
-      'post_id' => $posts[rand(0, sizeof($posts) - 1)],
-      'user_id' => $users[rand(0, sizeof($users) - 1)],
+      // 'post_id' => $posts[rand(0, sizeof($posts) - 1)],
+      'post_id' => Post::factory(),
+      'user_id' => User::factory(),
+      // 'user_id' => $users[rand(0, sizeof($users) - 1)],
       'body' => $this->faker->text('1000'),
     ];
   }

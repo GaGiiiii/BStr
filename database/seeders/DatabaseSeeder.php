@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder {
    * @return void
    */
   public function run() {
+    /* Ovo je radilo ali ne na dobar nacin i trebalo bi da se promeni!!! */
     User::factory()->count(50)->create();
     Category::factory()->count(10)->create();
     Post::factory()->count(70)->create();

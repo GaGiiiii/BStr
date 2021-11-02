@@ -17,8 +17,10 @@ class LikeFactory extends Factory {
     $posts = Post::all();
 
     return [
-      'post_id' => $posts[rand(0, sizeof($posts) - 1)],
-      'user_id' => $users[rand(0, sizeof($users) - 1)],
+      'post_id' => Post::factory(),
+      'user_id' => User::factory(),
+      // 'post_id' => $posts[rand(0, sizeof($posts) - 1)],
+      // 'user_id' => $users[rand(0, sizeof($users) - 1)],
     ];
   }
 }

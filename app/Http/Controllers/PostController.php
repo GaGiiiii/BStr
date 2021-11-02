@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Post;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Validator;
 
 class PostController extends Controller {
@@ -72,7 +73,7 @@ class PostController extends Controller {
 
       if (!$category) {
         return response([
-          'product' => null,
+          'post' => null,
           'message' => 'Category not found.',
         ], 400);
       }
@@ -81,16 +82,24 @@ class PostController extends Controller {
       $validator = Validator::make($request->all(), [
         'category_id' => 'required|integer',
         'title' => 'required|string|min:10|max:100',
-        'body' => 'required|string|min:10|max:10000',
+        'body' => 'string|min:10|max:10000',
+        'image' => 'image|file|max:5000',
+        'video' => 'file|mimes:mp4,mov,ogg,qt,webm,oga,ogv,ogx|max:20000',
       ]);
+
+      if (!$request->body && !$request->file('image') && !$request->file('video')) {
+        throw ValidationException::withMessages(['body' => 'Please either enter text or add photo / video.']);
+      }
 
       if ($validator->fails()) {
         return response([
-          'product' => null,
+          'post' => null,
           'message' => 'Validation failed.',
           'errors' => $validator->messages(),
         ], 400);
       }
+
+      return 1;
 
       $post = new Post;
       $post->category_id = $request->category_id;
@@ -105,9 +114,15 @@ class PostController extends Controller {
         "post" => $post,
         "message" => "Post created.",
       ], 201);
+    } catch (ValidationException $e) {
+      return response([
+        "post" => null,
+        'message' => 'Validation failed.',
+        "errors" => $e->errors(),
+      ], 500);
     } catch (Exception $e) {
       return response([
-        "post" => $post,
+        "post" => null,
         "message" => $e->getMessage(),
       ], 500);
     }

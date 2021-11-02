@@ -72,7 +72,31 @@ Interest(**id**, ***user_id, category_id***, created_at, updated_at)
 
 ---
 
-## API Documentation
+## API Documentation  
+
+---
+
+### AUTH
+
+--- 
+
+#### Get all posts
+
+```http
+GET /api/posts
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `sortBy` | `string` | Available options **dateDesc \| dateAsc \| popularity** |
+| `categories` | `string` | In format: **1,3,5** where 1,3,5 are **id's** of categories |
+| `search` | `string` | First name / Last name of user who created post |
+
+---
+
+### POSTS
+
+---
 
 #### Get all posts
 
@@ -94,7 +118,7 @@ POST /api/posts/
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `category_id` | `integer` | **Required**. Id of category to which post belongs to. |
+| `category_id` | `integer` | **Required**. ID of category to which post belongs to. |
 | `title` | `string \| min 10, max 100 chars` | **Required**. Title of the post. |
 | `body` | `string \| min 10 \| max 10000 chars` | **Required** (if no image / video provided). |
 | `image` | `file \| image \| max 5mb` | **Required** (if no body / video provided). |
@@ -109,8 +133,8 @@ PUT /api/posts/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. Id of post intended to update. |
-| `category_id` | `integer` | **Required**. Id of category to which post belongs to. |
+| `id` | `integer` | **Required**. ID of post intended to update. |
+| `category_id` | `integer` | **Required**. ID of category to which post belongs to. |
 | `title` | `string \| min 10, max 100 chars` | **Required**. Title of the post. |
 | `body` | `string \| min 10 \| max 10000 chars` | **Required** (if no image / video provided). |
 | `image` | `file \| image \| max 5mb` | **Required** (if no body / video provided). |
@@ -125,10 +149,14 @@ DELETE /api/posts/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. Id of post intended to delete. |
+| `id` | `integer` | **Required**. ID of post intended to delete. |
 | `token` | `string` | **Required**. Users token. |
 
+---
 
+### Comments
+
+---
 
 #### Get all comments
 
@@ -144,7 +172,7 @@ POST /api/comments/
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `post_id` | `integer` | **Required**. Id of post to which comments belongs to. |
+| `post_id` | `integer` | **Required**. ID of post to which comments belongs to. |
 | `body` | `string \| min 20 \| max 5000 chars` | **Required**. |
 | `token` | `string` | **Required**. Users token. |
 
@@ -156,7 +184,7 @@ PUT /api/comments/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. Id of comment intended to update. |
+| `id` | `integer` | **Required**. ID of comment intended to update. |
 | `post_id` | `integer` | **Required**. Id of post to which comments belongs to. |
 | `body` | `string \| min 20 \| max 5000 chars` | **Required**. |
 | `token` | `string` | **Required**. Users token. |
@@ -169,8 +197,59 @@ DELETE /api/comments/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. Id of comment intended to delete. |
+| `id` | `integer` | **Required**. ID of comment intended to delete. |
 | `token` | `string` | **Required**. Users token. |
+
+---
+
+### Likes
+
+---
+
+#### Add new like
+
+```http
+POST /api/likes/
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `post_id` | `integer` | **Required**. ID of post to which like belongs to. |
+| `token` | `string` | **Required**. Users token. |
+
+#### Delete like
+
+```http
+DELETE /api/likes/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `integer` | **Required**. ID of like intended to delete. |
+| `token` | `string` | **Required**. Users token. |
+
+---
+
+#### Most popular posts in category
+
+```http
+GET /api/categories/${id}/most-popular-posts
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `integer` | **Required**. ID of selected category. |
+
+#### Users points
+
+```http
+GET /api/users/${id}/points
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `integer` | **Required**. ID of selected user. |
+
 
 ## Responses
 

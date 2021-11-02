@@ -80,17 +80,42 @@ Interest(**id**, ***user_id, category_id***, created_at, updated_at)
 
 --- 
 
-#### Get all posts
+#### Register
 
 ```http
-GET /api/posts
+POST /api/register
 ```
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `sortBy` | `string` | Available options **dateDesc \| dateAsc \| popularity** |
-| `categories` | `string` | In format: **1,3,5** where 1,3,5 are **id's** of categories |
-| `search` | `string` | First name / Last name of user who created post |
+| `first_name` | `string` | **Required** Provided first name. |
+| `last_name` | `string` | **Required** Provided last name. |
+| `email` | `string` | **Required** Provided email. |
+| `password` | `string \| min 4 chars` | **Required** Provided password. |
+| `password_confirmation` | `string` | **Required** Confirmed password. |
+| `image` | `file \| image \| max 5mb ` | **Required** Users profile picture. |
+| `interests` | `string` | In format: **1,3,5**. Where 1,3,5 are **ID's** of categories. |
+
+#### Login
+
+```http
+POST /api/login
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `email` | `string` | **Required** Provided email. |
+| `password` | `string \| min 4 chars` | **Required** Provided password. |
+
+#### Logout
+
+```http
+POST /api/login
+```
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `token` | `string` | **Required** Users token. |
 
 ---
 
@@ -106,9 +131,9 @@ GET /api/posts
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `sortBy` | `string` | Available options **dateDesc \| dateAsc \| popularity** |
-| `categories` | `string` | In format: **1,3,5** where 1,3,5 are **id's** of categories |
-| `search` | `string` | First name / Last name of user who created post |
+| `sortBy` | `string` | **Optional** Available options **dateDesc \| dateAsc \| popularity** |
+| `categories` | `string` | **Optional** In format: **1,3,5** where 1,3,5 are **ID's** of categories |
+| `search` | `string` | **Optional** First name / Last name of user who created post |
 
 #### Add new post
 
@@ -118,12 +143,12 @@ POST /api/posts/
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `category_id` | `integer` | **Required**. ID of category to which post belongs to. |
+| `category_id` | `integer` | **Required** ID of category to which post belongs to. |
 | `title` | `string \| min 10, max 100 chars` | **Required**. Title of the post. |
 | `body` | `string \| min 10 \| max 10000 chars` | **Required** (if no image / video provided). |
 | `image` | `file \| image \| max 5mb` | **Required** (if no body / video provided). |
 | `video` | `file \| video \| max 20mb` | **Required** (if no body / image provided). |
-| `token` | `string` | **Required**. Users token. |
+| `token` | `string` | **Required** Users token. |
 
 #### Update post
 
@@ -133,13 +158,13 @@ PUT /api/posts/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. ID of post intended to update. |
-| `category_id` | `integer` | **Required**. ID of category to which post belongs to. |
-| `title` | `string \| min 10, max 100 chars` | **Required**. Title of the post. |
+| `id` | `integer` | **Required** ID of post intended to update. |
+| `category_id` | `integer` | **Required** ID of category to which post belongs to. |
+| `title` | `string \| min 10, max 100 chars` | **Required** Title of the post. |
 | `body` | `string \| min 10 \| max 10000 chars` | **Required** (if no image / video provided). |
 | `image` | `file \| image \| max 5mb` | **Required** (if no body / video provided). |
 | `video` | `file \| video \| max 20mb` | **Required** (if no body / image provided). |
-| `token` | `string` | **Required**. Users token. |
+| `token` | `string` | **Required** Users token. |
 
 #### Delete post
 
@@ -149,8 +174,8 @@ DELETE /api/posts/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. ID of post intended to delete. |
-| `token` | `string` | **Required**. Users token. |
+| `id` | `integer` | **Required** ID of post intended to delete. |
+| `token` | `string` | **Required** Users token. |
 
 ---
 
@@ -172,9 +197,9 @@ POST /api/comments/
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `post_id` | `integer` | **Required**. ID of post to which comments belongs to. |
-| `body` | `string \| min 20 \| max 5000 chars` | **Required**. |
-| `token` | `string` | **Required**. Users token. |
+| `post_id` | `integer` | **Required** ID of post to which comments belongs to. |
+| `body` | `string \| min 20 \| max 5000 chars` | **Required** |
+| `token` | `string` | **Required** Users token. |
 
 #### Update comment
 
@@ -184,10 +209,10 @@ PUT /api/comments/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. ID of comment intended to update. |
-| `post_id` | `integer` | **Required**. Id of post to which comments belongs to. |
-| `body` | `string \| min 20 \| max 5000 chars` | **Required**. |
-| `token` | `string` | **Required**. Users token. |
+| `id` | `integer` | **Required** ID of comment intended to update. |
+| `post_id` | `integer` | **Required** Id of post to which comments belongs to. |
+| `body` | `string \| min 20 \| max 5000 chars` | **Required** |
+| `token` | `string` | **Required** Users token. |
 
 #### Delete comment
 
@@ -197,8 +222,8 @@ DELETE /api/comments/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. ID of comment intended to delete. |
-| `token` | `string` | **Required**. Users token. |
+| `id` | `integer` | **Required** ID of comment intended to delete. |
+| `token` | `string` | **Required** Users token. |
 
 ---
 
@@ -214,8 +239,8 @@ POST /api/likes/
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `post_id` | `integer` | **Required**. ID of post to which like belongs to. |
-| `token` | `string` | **Required**. Users token. |
+| `post_id` | `integer` | **Required** ID of post to which like belongs to. |
+| `token` | `string` | **Required** Users token. |
 
 #### Delete like
 
@@ -225,8 +250,8 @@ DELETE /api/likes/${id}
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. ID of like intended to delete. |
-| `token` | `string` | **Required**. Users token. |
+| `id` | `integer` | **Required** ID of like intended to delete. |
+| `token` | `string` | **Required** Users token. |
 
 ---
 
@@ -238,7 +263,7 @@ GET /api/categories/${id}/most-popular-posts
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. ID of selected category. |
+| `id` | `integer` | **Required** ID of selected category. |
 
 #### Users points
 
@@ -248,7 +273,7 @@ GET /api/users/${id}/points
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id` | `integer` | **Required**. ID of selected user. |
+| `id` | `integer` | **Required** ID of selected user. |
 
 
 ## Responses
@@ -259,14 +284,17 @@ API returns a JSON response in the following format:
 {
   "message": string,
   "data": data,
-  "errors?": array (in cases of errors)
+  "errors?": array (in cases of errors),
+  "token?": string,
 }
 ```
 The `message` - attribute contains a message commonly used to indicate errors or, in the case of deleting a resource, success that the resource was properly deleted.
 
-The `data` - attribute contains requested resource/s or processed resource. Eg. if we requsted to get all posts the data attr will look like this `"posts": array of posts`  
+The `data` - attribute contains requested resource/s or processed resource. Eg. if we requsted to get all posts the data attr will look like this `"posts": array of posts`.  
 
-The `errors` - attribute is optional and it contains error messages
+The `errors` - attribute is optional and it contains error messages.
+
+The `token` - attribute is optional and it will be returned when user logins or registers.
 
 ## Status Codes
 

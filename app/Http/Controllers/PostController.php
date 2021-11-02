@@ -181,8 +181,15 @@ class PostController extends Controller {
       $validator = Validator::make($request->all(), [
         'category_id' => 'required|integer',
         'title' => 'required|string|min:10|max:100',
-        'body' => 'required|string|min:10|max:10000',
+        'body' => 'string|min:10|max:10000',
+        'image' => 'image|file|max:5000',
+        'video' => 'file|mimes:mp4,mov,ogg,qt,webm,oga,ogv,ogx|max:20000',
       ]);
+
+      if (!$request->body && !$request->file('image') && !$request->file('video')) {
+        throw ValidationException::withMessages(['body' => 'Please either enter text or add photo / video.']);
+      }
+
 
       if ($validator->fails()) {
         return response([
@@ -195,15 +202,44 @@ class PostController extends Controller {
       $post->category_id = $request->category_id;
       $post->title = $request->title;
       $post->body = $request->body;
-      $post->save();
 
+      // CHECK IF IMAGE IS UPLOADED
+      if ($request->file('image')) {
+        Storage::deleteDirectory('posts-images/' .  $post->id);
+
+        // CREATE UNIQUE FILENAME AND STORE IT UNIQUE FOLDER
+        $fileName = $post->id . "_" . date('dmY_Hs') . "." . $request->image->extension() ?? null;
+        $path = $request->file('image')->storeAs('posts-images/' . $post->id, $fileName);
+        $post->image = $fileName;
+      }
+
+      // CHECK IF VIDEO IS UPLOADED
+      if ($request->file('video')) {
+        Storage::deleteDirectory('posts-videos/' .  $post->id);
+
+        // CREATE UNIQUE FILENAME AND STORE IT UNIQUE FOLDER
+        $fileName = $post->id . "_" . date('dmY_Hs') . "." . $request->video->extension() ?? null;
+        $path = $request->file('video')->storeAs('posts-videos/' . $post->id, $fileName);
+        $post->video = $fileName;
+      }
+
+
+      $post->save();
       $post = $post->fresh(['likes', 'comments', 'category', 'comments.user', 'user']);
 
       return response([
         "post" => $post,
         "message" => "Post updated.",
       ], 200);
+    } catch (ValidationException $e) {
+      DB::rollBack();
+      return response([
+        "post" => null,
+        'message' => 'Validation failed.',
+        "errors" => $e->errors(),
+      ], 500);
     } catch (Exception $e) {
+      DB::rollBack();
       return response([
         "post" => $post,
         "message" => $e->getMessage(),
@@ -235,7 +271,10 @@ class PostController extends Controller {
         ], 401);
       }
 
+
       $post->delete();
+      Storage::deleteDirectory('posts-images/' .  $post->id);
+      Storage::deleteDirectory('posts-videos/' .  $post->id);
 
       return response([
         "post" => $post,

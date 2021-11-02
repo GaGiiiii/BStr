@@ -138,7 +138,7 @@ GET /api/posts
 #### Add new post
 
 ```http
-POST /api/posts/
+POST /api/posts
 ```
 
 | Parameter | Type     | Description                       |
@@ -192,7 +192,7 @@ GET /api/comments
 #### Add new comment
 
 ```http
-POST /api/comments/
+POST /api/comments
 ```
 
 | Parameter | Type     | Description                       |
@@ -234,7 +234,7 @@ DELETE /api/comments/${id}
 #### Add new like
 
 ```http
-POST /api/likes/
+POST /api/likes
 ```
 
 | Parameter | Type     | Description                       |

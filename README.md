@@ -74,7 +74,7 @@ Interest(**id**, ***user_id, category_id***, created_at, updated_at)
 
 ## API Documentation
 
-#### Get all items
+#### Get all posts
 
 ```http
 GET /api/posts
@@ -86,15 +86,91 @@ GET /api/posts
 | `categories` | `string` | In format: **1,3,5** where 1,3,5 are **id's** of categories |
 | `search` | `string` | First name / Last name of user who created post |
 
-#### Get item
+#### Add new post
 
 ```http
-GET /api/items/${id}
+POST /api/posts/
 ```
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `id`      | `string` | **Required**. Id of item to fetch |
+| `category_id` | `integer` | **Required**. Id of category to which post belongs to. |
+| `title` | `string \| min 10, max 100 chars` | **Required**. Title of the post. |
+| `body` | `string \| min 10 \| max 10000 chars` | **Required** (if no image / video provided). |
+| `image` | `file \| image \| max 5mb` | **Required** (if no body / video provided). |
+| `video` | `file \| video \| max 20mb` | **Required** (if no body / image provided). |
+| `token` | `string` | **Required**. Users token. |
+
+#### Update post
+
+```http
+PUT /api/posts/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `integer` | **Required**. Id of post intended to update. |
+| `category_id` | `integer` | **Required**. Id of category to which post belongs to. |
+| `title` | `string \| min 10, max 100 chars` | **Required**. Title of the post. |
+| `body` | `string \| min 10 \| max 10000 chars` | **Required** (if no image / video provided). |
+| `image` | `file \| image \| max 5mb` | **Required** (if no body / video provided). |
+| `video` | `file \| video \| max 20mb` | **Required** (if no body / image provided). |
+| `token` | `string` | **Required**. Users token. |
+
+#### Delete post
+
+```http
+DELETE /api/posts/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `integer` | **Required**. Id of post intended to delete. |
+| `token` | `string` | **Required**. Users token. |
+
+
+
+#### Get all comments
+
+```http
+GET /api/comments
+```
+
+#### Add new comment
+
+```http
+POST /api/comments/
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `post_id` | `integer` | **Required**. Id of post to which comments belongs to. |
+| `body` | `string \| min 20 \| max 5000 chars` | **Required**. |
+| `token` | `string` | **Required**. Users token. |
+
+#### Update comment
+
+```http
+PUT /api/comments/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `integer` | **Required**. Id of comment intended to update. |
+| `post_id` | `integer` | **Required**. Id of post to which comments belongs to. |
+| `body` | `string \| min 20 \| max 5000 chars` | **Required**. |
+| `token` | `string` | **Required**. Users token. |
+
+#### Delete comment
+
+```http
+DELETE /api/comments/${id}
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id` | `integer` | **Required**. Id of comment intended to delete. |
+| `token` | `string` | **Required**. Users token. |
 
 ## Responses
 

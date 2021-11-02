@@ -284,7 +284,7 @@ API returns a JSON response in the following format:
 {
   "message": string,
   "data": data,
-  "errors?": array (in cases of errors),
+  "errors?": array,
   "token?": string,
 }
 ```

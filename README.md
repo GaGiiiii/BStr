@@ -110,7 +110,7 @@ POST /api/login
 #### Logout
 
 ```http
-POST /api/login
+POST /api/logout
 ```
 
 | Parameter | Type     | Description                |

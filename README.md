@@ -25,7 +25,7 @@ cd BStr
 composer i
 ```
 
-with the commands above we have installed all the dependencies located in the composer.json file
+With the commands above we have installed all the dependencies located in the composer.json file
 
 ---
 
